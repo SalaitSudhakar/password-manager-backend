@@ -76,20 +76,6 @@ export const register = async (req, res, next) => {
 
     await newUser.save();
 
-    const mailOptions = {
-      from: process.env.SENDER_EMAIL,
-      to: email,
-      subject: "Welcome to SafePass",
-      html: WELCOME_TEMPLATE.replace("{{name}}", name)
-        .replace("{{front end link}}", process.env.FRONTEND_URL)
-        .replaceAll("{{your company name}}", "SafePass"),
-    };
-
-    try {
-      await transporter.sendMail(mailOptions);
-    } catch (error) {
-      console.error("Error sending email:", error);
-    }
 
     const token = generateToken(newUser);
 
@@ -261,7 +247,7 @@ export const google = async (req, res, next) => {
         profile,
         registerType: "google",
         lastLoginAt: Date.now(),
-        isAccountVerified: true
+        EmailVerified: true
       });
 
       await newUser.save();
