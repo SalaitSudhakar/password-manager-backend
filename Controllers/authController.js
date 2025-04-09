@@ -301,18 +301,9 @@ export const isAuthenticated = async (req, res) => {
       .json({ success: false, message: "User not authenticated" });
   }
 
-  const {
-    password: _,
-    otp,
-    otpExpireAt,
-    resetToken,
-    resetTokenExpireAt,
-    ...userDetails
-  } = req.user._doc;
-
   res
     .status(200)
-    .json({ success: true, message: "User Authenticated", user: userDetails });
+    .json({ success: true, message: "User Authenticated"});
 };
 
 // Logout
