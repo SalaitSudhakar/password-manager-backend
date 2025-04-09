@@ -138,7 +138,12 @@ export const login = async (req, res, next) => {
     if (!validUser) return next(errorHandler(404, "User Not found"));
 
     if (validUser.registerType !== "email")
-      return next(errorHandler(400, "Invalid Request"));
+      return next(
+        errorHandler(
+          400,
+          "You are not Registered using your Email ID. Please Try Login using Google account instead"
+        )
+      );
 
     const validPassword = await bcrypt.compare(password, validUser.password);
     if (!validPassword) return next(errorHandler(401, "Invalid Credentials"));
@@ -190,7 +195,12 @@ export const google = async (req, res, next) => {
 
     if (user) {
       if (user.registerType !== "google")
-        return next(errorHandler(400, "Invalid Request"));
+        return next(
+          errorHandler(
+            400,
+            "You are not Registered using your Google Account. Please Try Login using your email ID instead"
+          )
+        );
 
       const token = generateToken(user);
       user.lastLoginAt = Date.now();
@@ -251,6 +261,7 @@ export const google = async (req, res, next) => {
         profile,
         registerType: "google",
         lastLoginAt: Date.now(),
+        isAccountVerified: true
       });
 
       await newUser.save();
@@ -328,7 +339,7 @@ export const logOut = async (req, res) => {
       sameSite: process.env.NODE_ENV === "production" ? "None" : "strict",
     })
     .status(200)
-    .json({success: false, message:"User logged out successfully"});
+    .json({ success: false, message: "User logged out successfully" });
 };
 
 // Send password reset link
@@ -369,7 +380,7 @@ export const forgotPassword = async (req, res, next) => {
     await user.save();
 
     // Send the reset token to user mail;
-    const resetLink = `${process.env.FRONTEND_URL}?token=${token}`;
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
       to: user.email,
@@ -395,22 +406,17 @@ export const forgotPassword = async (req, res, next) => {
 
 // Reset User password
 export const resetPassword = async (req, res, next) => {
-  const { email, newPassword } = req.body;
+  const { newPassword } = req.body;
   const { token } = req.query;
 
-  if (!email || !token || !newPassword) {
-    return next(
-      errorHandler(400, "Email, token and new Password are required")
-    );
+  console.log(token)
+  if (!token || !newPassword) {
+    return next(errorHandler(400, "token and new Password are required"));
   }
 
   // Validate input
-  if (!email || !newPassword) {
-    return next(errorHandler(400, "Email and password are required"));
-  }
-
-  if (!validator.isEmail(email)) {
-    return next(errorHandler(400, "Invalid email format"));
+  if (!newPassword) {
+    return next(errorHandler(400, "password is required"));
   }
 
   if (
@@ -430,7 +436,9 @@ export const resetPassword = async (req, res, next) => {
   }
 
   try {
-    const user = await User.findOne({ email });
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decodedToken.id);
 
     if (!user) {
       return next(errorHandler(404, "User not Found"));
@@ -440,8 +448,6 @@ export const resetPassword = async (req, res, next) => {
     if (!isValid) {
       return next(errorHandler(401, "Invalid token"));
     }
-
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
     if (!user.resetToken || decodedToken.id !== user._id.toString()) {
       return next(errorHandler(401, "Not Authorized"));
