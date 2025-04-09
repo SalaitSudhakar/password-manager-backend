@@ -301,9 +301,18 @@ export const isAuthenticated = async (req, res) => {
       .json({ success: false, message: "User not authenticated" });
   }
 
+  const {
+    password: _,
+    otp,
+    otpExpireAt,
+    resetToken,
+    resetTokenExpireAt,
+    ...userDetails
+  } = req.user._doc; // userObj;
+
   res
     .status(200)
-    .json({ success: true, message: "User Authenticated"});
+    .json({ success: true, message: "User Authenticated", userDetails});
 };
 
 // Logout
@@ -560,10 +569,10 @@ export const verifyEmail = async (req, res, next) => {
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
       to: user.email,
-      subject: "Password Reset successful",
+      subject: "Account Verified successfully",
       html: EMAIL_VERIFY_SUCCESS_TEMPLATE.replace("{{name}}", user.name)
         .replace("{{Login Link}}", process.env.FRONTEND_URL)
-        .replace("{{your company name}}", "SafePass"),
+        .replace("{{Your company Name}}", "SafePass"),
     };
 
     await transporter.sendMail(mailOptions);
