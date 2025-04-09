@@ -312,7 +312,7 @@ export const isAuthenticated = async (req, res) => {
 
   res
     .status(200)
-    .json({ success: true, message: "User Authenticated", userDetails});
+    .json({ success: true, message: "User Authenticated", user: userDetails});
 };
 
 // Logout
