@@ -76,7 +76,6 @@ export const register = async (req, res, next) => {
 
     await newUser.save();
 
-
     const token = generateToken(newUser);
 
     res.cookie("token", token, {
@@ -247,7 +246,7 @@ export const google = async (req, res, next) => {
         profile,
         registerType: "google",
         lastLoginAt: Date.now(),
-        EmailVerified: true
+        EmailVerified: true,
       });
 
       await newUser.save();
@@ -395,7 +394,7 @@ export const resetPassword = async (req, res, next) => {
   const { newPassword } = req.body;
   const { token } = req.query;
 
-  console.log(token)
+  console.log(token);
   if (!token || !newPassword) {
     return next(errorHandler(400, "token and new Password are required"));
   }
