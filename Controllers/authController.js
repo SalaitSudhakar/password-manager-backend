@@ -394,7 +394,6 @@ export const resetPassword = async (req, res, next) => {
   const { newPassword } = req.body;
   const { token } = req.query;
 
-  console.log(token);
   if (!token || !newPassword) {
     return next(errorHandler(400, "token and new Password are required"));
   }
@@ -487,12 +486,14 @@ export const sendVerifyOtp = async (req, res, next) => {
     }
 
     // If Account already verified
-    if (user.isAccoundVerified) {
+    if (user.emailVerified) {
       return next(errorHandler(409, "Account already verified"));
     }
 
     // Generate otp
     const otp = String(Math.floor(100000 + Math.random() * 900000));
+
+    console.log("otp: ", otp)
 
     // store otp in database
     user.otp = await bcrypt.hash(otp, 10);
@@ -511,6 +512,7 @@ export const sendVerifyOtp = async (req, res, next) => {
         .replace("{{Your Company Name}}", "SafePass")
         .replace("{{name}}", name),
     };
+    
     try {
       await transporter.sendMail(mailOptions);
     } catch (error) {
@@ -566,6 +568,15 @@ export const verifyEmail = async (req, res, next) => {
 
     await user.save(); // save the change
 
+     const {
+      password,
+      otp: _,
+      otpExpireAt,
+      resetToken,
+      resetTokenExpireAt,
+      ...userDetails
+    } = user._doc; // userObj;
+
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
       to: user.email,
@@ -580,7 +591,7 @@ export const verifyEmail = async (req, res, next) => {
     // return the success message
     return res
       .status(200)
-      .json({ success: true, message: "email verified successfully" });
+      .json({ success: true, message: "email verified successfully", user: userDetails });
   } catch (error) {
     next(error);
   }
