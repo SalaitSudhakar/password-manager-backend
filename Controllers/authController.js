@@ -493,8 +493,6 @@ export const sendVerifyOtp = async (req, res, next) => {
     // Generate otp
     const otp = String(Math.floor(100000 + Math.random() * 900000));
 
-    console.log("otp: ", otp)
-
     // store otp in database
     user.otp = await bcrypt.hash(otp, 10);
     user.otpExpireAt = Date.now() + 4 * 60 * 60 * 1000; // 4 h in milliseconds from otp generated time
