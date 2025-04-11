@@ -7,8 +7,8 @@ import upload from '../Config/multer.js';
 const route = express.Router();
 
 route.get('/data', authMiddleware, getUserData);
-route.patch('/update-profile/:id', authMiddleware, upload.single("profile"), updateProfile);
-route.patch('/update-password/:id', authMiddleware, updatePassword);
-route.patch('/delete/:id', authMiddleware, deleteUser);
+route.patch('/update-profile', authMiddleware, upload.single("profile"), updateProfile);
+route.patch('/update-password', authMiddleware, updatePassword);
+route.delete('/delete', authMiddleware, deleteUser);
 
 export default route;

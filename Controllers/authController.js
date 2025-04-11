@@ -475,10 +475,10 @@ export const resetPassword = async (req, res, next) => {
 export const sendVerifyOtp = async (req, res, next) => {
   try {
     // Get userId and destructure it
-    const { _id, name, email } = req.user;
+    const { id, name, email } = req.user;
 
     // Check for the user in database
-    const user = await User.findById(_id);
+    const user = await User.findById(id);
 
     // if user not found, send message
     if (!user) {
@@ -528,7 +528,7 @@ export const verifyEmail = async (req, res, next) => {
   try {
     // Destructure the data
     const { otp } = req.body;
-    const { _id } = req.user;
+    const { id } = req.user;
 
     // Validate data
     if (!otp) {
@@ -536,7 +536,7 @@ export const verifyEmail = async (req, res, next) => {
     }
 
     // Find the user from the database
-    const user = await User.findById(_id);
+    const user = await User.findById(id);
 
     // If User not exists
     if (!user) {
