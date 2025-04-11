@@ -107,7 +107,7 @@ export const updatePassword = async (req, res, next) => {
   const { id } = req.user;
 
   if (oldPassword === newPassword) {
-    return next(errorHandler(400, "Old password and New Password cannot be same"))
+    return next(errorHandler(400, "Your previous password and New Password cannot be same"))
   }
 
   // Validate new password strength
