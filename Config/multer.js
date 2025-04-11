@@ -1,15 +1,15 @@
 import multer from 'multer';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
-import cloudinary from './coudinary.js';
+import cloudinary from './cloudinary.js';
 
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
-        folder: 'password-manager',
-        allowedFormats: ['jpg', 'png', 'jpeg']
+        folder: "Mern_Auth_Profile",
+        allowedFormats: ['jpg', 'png', 'jpeg'],
     }
-})
+});
 
-const upload = multer({ storage: storage});
+const upload = multer({ storage: storage });
 
 export default upload;

@@ -3,7 +3,7 @@ import { errorHandler } from "../Utils/errorHandler.js";
 import validator from "validator";
 import bcrypt from 'bcryptjs';
 
-// Get User Data
+/* // Get User Data
 export const getUserData = async (req, res, next) => {
   try {
     const { id } = req.user; // Get User id from middleware
@@ -35,8 +35,7 @@ export const getUserData = async (req, res, next) => {
     next(error);
   }
 };
-
-// Update profile Details
+ */
 // Update profile details
 export const updateProfile = async (req, res, next) => {
   try {
@@ -53,12 +52,24 @@ export const updateProfile = async (req, res, next) => {
       }
       updateData.email = req.body.email;
     }
-
+ 
     // Update profile image if provided
     if (req.file && req.file.path) {
       updateData.profile = req.file.path;
     }
+    console.log("Image File: ", req.file, "Image File Path: ", req.file?.path)
+    console.log("profile: " , updateData.profile)
+  
 
+    /* IF the email not same as users registered email, then check the new email not already registered by someone else */
+    if (req.user.email !== updateData.email){
+      const isRegisteredEmail = await User.findOne({email: updateData.email});
+
+    // Check if a email registered
+    if (isRegisteredEmail) return next(errorHandler(400, "This Email Already Registered"))
+
+    }
+    
     // Update user and return new data
     const updatedUser = await User.findByIdAndUpdate(
       id,
