@@ -246,7 +246,7 @@ export const google = async (req, res, next) => {
         profile,
         registerType: "google",
         lastLoginAt: Date.now(),
-        EmailVerified: true,
+        emailVerified: true,
       });
 
       await newUser.save();
