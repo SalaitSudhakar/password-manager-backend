@@ -180,42 +180,44 @@ export const google = async (req, res, next) => {
     );
 
     if (user) {
-      if (user.registerType !== "google")
+      
+      if (user.registerType === "google") {
+        const token = generateToken(user);
+        user.lastLoginAt = Date.now();
+        await user.save();
+
+        // Only extract neccessary details
+        // const userObj = user.toObject();
+
+        const {
+          password: _,
+          otp,
+          otpExpireAt,
+          resetToken,
+          resetTokenExpireAt,
+          ...userDetails
+        } = user._doc; //userObj;
+
+        res.cookie("token", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "None" : "strict",
+          maxAge: 24 * 60 * 60 * 1000, // convert  1 day into milli seconds
+        });
+
+        return res.status(200).json({
+          success: true,
+          message: "User Loggedin successfully",
+          user: userDetails,
+        });
+      } else {
         return next(
           errorHandler(
             400,
-            "You are not Registered using your Google Account. Please Try Login using your email ID instead"
+            "The email not  registered using google account. Please Try login using  email ID and password"
           )
         );
-
-      const token = generateToken(user);
-      user.lastLoginAt = Date.now();
-      await user.save();
-
-      // Only extract neccessary details
-      // const userObj = user.toObject();
-
-      const {
-        password: _,
-        otp,
-        otpExpireAt,
-        resetToken,
-        resetTokenExpireAt,
-        ...userDetails
-      } = user._doc; //userObj;
-
-      res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "None" : "strict",
-        maxAge: 24 * 60 * 60 * 1000, // convert  1 day into milli seconds
-      });
-
-      res.status(200).json({
-        success: true,
-        message: "User Loggedin successfully",
-        user: userDetails,
-      });
+      }
     } else {
       const generatedPassword =
         Math.random().toString(36).slice(-8) +
@@ -589,13 +591,11 @@ export const verifyEmail = async (req, res, next) => {
     await transporter.sendMail(mailOptions);
 
     // return the success message
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "email verified successfully",
-        user: userDetails,
-      });
+    return res.status(200).json({
+      success: true,
+      message: "email verified successfully",
+      user: userDetails,
+    });
   } catch (error) {
     next(error);
   }

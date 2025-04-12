@@ -175,7 +175,6 @@ export const linkEmailPassword = async (req, res, next) => {
     user.emailPasswordLinked = true;
     user.save();
 
-    console.log('User: ', user + ' Email Linked: ', user.emailPasswordLinked)
     res.status(200).json({success: true, message: "Your password and email linked successfully"})
   } catch (error) {
     next(error)
