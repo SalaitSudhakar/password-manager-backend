@@ -1,5 +1,5 @@
 import express from 'express';
-import { updateProfile, updatePassword, deleteUser, linkEmailPassword } from '../Controllers/userController.js';
+import { updateProfile, updatePassword, deleteUser, linkEmailPassword, getUserData } from '../Controllers/userController.js';
 import { authMiddleware } from './../Middleware/authMiddleware.js';
 import upload from '../Config/multer.js';
 
