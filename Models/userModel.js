@@ -29,6 +29,11 @@ const userSchema = new mongoose.Schema(
       default: 'email'
     },
 
+    emailPasswordLinked: {
+      type: Boolean,
+      default: false,
+    },
+
     profile: {
       type: String,
       default:

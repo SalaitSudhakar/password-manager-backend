@@ -39,6 +39,7 @@ export const register = async (req, res, next) => {
     if (
       !validator.isStrongPassword(password, {
         minLength: 8,
+        minUppercase: 1,
         minLowercase: 1,
         minNumbers: 1,
         minSymbols: 1,
@@ -47,7 +48,7 @@ export const register = async (req, res, next) => {
       return next(
         errorHandler(
           400,
-          "Password must be at least 8 characters long and include a lowercase letter, a number, and a special character"
+          "Password must be at least 8 characters long and include a uppercase letter, a lowercase letter, a number, and a special character"
         )
       );
     }
@@ -122,11 +123,11 @@ export const login = async (req, res, next) => {
     const validUser = await User.findOne({ email });
     if (!validUser) return next(errorHandler(404, "User Not found"));
 
-    if (validUser.registerType !== "email")
+    if (validUser.registerType === "google" && !validUser.emailPasswordLinked)
       return next(
         errorHandler(
           400,
-          "You are not Registered using your Email ID. Please Try Login using Google account instead"
+          "You are not linked your Email ID and Password. Please Try Login using Google account instead"
         )
       );
 
@@ -312,7 +313,7 @@ export const isAuthenticated = async (req, res) => {
 
   res
     .status(200)
-    .json({ success: true, message: "User Authenticated", user: userDetails});
+    .json({ success: true, message: "User Authenticated", user: userDetails });
 };
 
 // Logout
@@ -406,6 +407,7 @@ export const resetPassword = async (req, res, next) => {
   if (
     !validator.isStrongPassword(newPassword, {
       minLength: 8,
+      minUppercase: 1,
       minLowercase: 1,
       minNumbers: 1,
       minSymbols: 1,
@@ -414,7 +416,7 @@ export const resetPassword = async (req, res, next) => {
     return next(
       errorHandler(
         400,
-        "Password must be at least 8 characters long and include a lowercase letter, a number, and a special character"
+        "Password must be at least 8 characters long and include a uppercase letter, a lowercase letter, a number, and a special character"
       )
     );
   }
@@ -510,7 +512,7 @@ export const sendVerifyOtp = async (req, res, next) => {
         .replace("{{Your Company Name}}", "SafePass")
         .replace("{{name}}", name),
     };
-    
+
     try {
       await transporter.sendMail(mailOptions);
     } catch (error) {
@@ -566,7 +568,7 @@ export const verifyEmail = async (req, res, next) => {
 
     await user.save(); // save the change
 
-     const {
+    const {
       password,
       otp: _,
       otpExpireAt,
@@ -589,7 +591,11 @@ export const verifyEmail = async (req, res, next) => {
     // return the success message
     return res
       .status(200)
-      .json({ success: true, message: "email verified successfully", user: userDetails });
+      .json({
+        success: true,
+        message: "email verified successfully",
+        user: userDetails,
+      });
   } catch (error) {
     next(error);
   }

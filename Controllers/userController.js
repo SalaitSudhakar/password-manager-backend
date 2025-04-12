@@ -111,6 +111,7 @@ export const updatePassword = async (req, res, next) => {
   if (
     !validator.isStrongPassword(newPassword, {
       minLength: 8,
+      minUppercase: 1,
       minLowercase: 1,
       minNumbers: 1,
       minSymbols: 1,
@@ -119,7 +120,7 @@ export const updatePassword = async (req, res, next) => {
     return next(
       errorHandler(
         400,
-        "Password must be at least 8 characters long and include a lowercase letter, a number, and a special character"
+        "Password must be at least 8 characters long and include a uppercase letter, a lowercase letter, a number, and a special character"
       )
     );
   }
@@ -145,6 +146,39 @@ export const updatePassword = async (req, res, next) => {
     next(error);
   }
 };
+
+// set Password (only for the user registered with Google and email password not linked)
+export const linkEmailPassword = async (req, res, next) => {
+  const { id } = req.user;
+  const { password } = req.body;
+
+  if (!validator.isStrongPassword(password, {
+    minLength: 8,
+    minUppercase: 1,
+    minLowercase: 1,
+    minNumbers: 1,
+    minSymbols: 1,
+  })){
+    return next(errorHandler(400, "Password must be at least 8 characters long and include a uppercase letter, a lowercase letter, a number, and a special character"))
+  }
+  
+  try {
+    const user = await User.findById(id);
+
+    if (!user) return next(errorHandler(404, "User Not found"));
+
+    if (user.registerType !== 'google') return next(errorHandler(400, "You are not registered with Google. You cannot use this method to update password"))
+
+    if (user.emailPasswordLinked) return next(errorHandler(400, "Your email and password already Linked"));
+
+    user.password = await bcrypt.hash(password, 10);
+    user.save();
+
+    res.status(400).json({success: true, message: "Your password and email linked successfully"})
+  } catch (error) {
+    next(error)
+  }
+}
 
 // Delete Account
 export const deleteUser = async (req, res, next) => {
