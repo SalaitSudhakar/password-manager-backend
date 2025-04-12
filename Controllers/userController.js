@@ -3,7 +3,7 @@ import { errorHandler } from "../Utils/errorHandler.js";
 import validator from "validator";
 import bcrypt from 'bcryptjs';
 
-/* // Get User Data
+// Get User Data
 export const getUserData = async (req, res, next) => {
   try {
     const { id } = req.user; // Get User id from middleware
@@ -35,7 +35,7 @@ export const getUserData = async (req, res, next) => {
     next(error);
   }
 };
- */
+
 // Update profile details
 export const updateProfile = async (req, res, next) => {
   try {
@@ -172,9 +172,11 @@ export const linkEmailPassword = async (req, res, next) => {
     if (user.emailPasswordLinked) return next(errorHandler(400, "Your email and password already Linked"));
 
     user.password = await bcrypt.hash(password, 10);
+    user.emailPasswordLinked = true;
     user.save();
 
-    res.status(400).json({success: true, message: "Your password and email linked successfully"})
+    console.log('User: ', user + ' Email Linked: ', user.emailPasswordLinked)
+    res.status(200).json({success: true, message: "Your password and email linked successfully"})
   } catch (error) {
     next(error)
   }
