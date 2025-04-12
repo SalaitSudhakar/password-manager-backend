@@ -57,9 +57,6 @@ export const updateProfile = async (req, res, next) => {
     if (req.file && req.file.path) {
       updateData.profile = req.file.path;
     }
-    console.log("Image File: ", req.file, "Image File Path: ", req.file?.path)
-    console.log("profile: " , updateData.profile)
-  
 
     /* IF the email not same as users registered email, then check the new email not already registered by someone else */
     if (req.user.email !== updateData.email){
