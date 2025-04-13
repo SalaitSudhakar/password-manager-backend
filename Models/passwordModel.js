@@ -25,6 +25,15 @@ const passwordSchema = new mongoose.Schema(
     notes: {
       type: String,
     },
+    category: {
+      type: String,
+      enum: ['social', 'banking', 'work', 'entertainment', 'shopping', 'others'],
+      default: 'others'
+    },
+    tags: {
+      type: [String],
+      default: []
+    }
   },
   { timestamps: true }
 );
