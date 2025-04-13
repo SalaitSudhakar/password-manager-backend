@@ -1,32 +1,37 @@
 import mongoose from "mongoose";
 
-const passwordSchema = new mongoose.Schema({
+const passwordSchema = new mongoose.Schema(
+  {
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
     siteName: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     siteUrl: {
-        type: String,
-    },
-    username: {
-        type:String,
-        required: true
+      type: String,
+      required: true,
     },
     password: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
+    },
+    username: {
+      type: String,
     },
     notes: {
-        type: String
-    }
+      type: String,
+    },
+  },
+  { timestamps: true }
+);
 
-}, {timestamps: true});
+// Create a compound index on userId and siteUrl to ensure one password per site per user
+passwordSchema.index({ userId: 1, siteUrl: 1 }, { unique: true });
 
-const Password = mongoose.model('Password', passwordSchema);
+const Password = mongoose.model("Password", passwordSchema);
 
 export default Password;
