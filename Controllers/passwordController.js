@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import Password from "../Models/passwordModel.js";
 import User from "../Models/userModel.js";
 import { errorHandler } from "../Utils/errorHandler.js";
@@ -51,13 +52,16 @@ export const createPassword = async (req, res, next) => {
 });
  */
 
+  // Hash Password
+  const hashedPassword = await bcrypt.hash(password, 10);
+
   // Create passwordData object
   const passwordData = {};
 
   // Assign values to passwordData
   passwordData.siteName = siteName;
   passwordData.siteUrl = siteUrl;
-  passwordData.password = password;
+  passwordData.password = hashedPassword;
 
   if (username) passwordData.username = username;
   if (notes) passwordData.notes = notes;
@@ -70,7 +74,10 @@ export const createPassword = async (req, res, next) => {
       return next(errorHandler(404, "User Not Found"));
     }
 
-    const isSitePasswordAvailable = await Password.findOne({ siteUrl, userId: id });
+    const isSitePasswordAvailable = await Password.findOne({
+      siteUrl,
+      userId: id,
+    });
 
     if (isSitePasswordAvailable)
       return next(
