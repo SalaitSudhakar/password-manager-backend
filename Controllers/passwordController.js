@@ -1,8 +1,22 @@
-import bcrypt from "bcryptjs";
+import dotenv from "dotenv";
 import Password from "../Models/passwordModel.js";
 import { errorHandler } from "../Utils/errorHandler.js";
 import validator from "validator"; // Importing validator
 import mongoose from "mongoose";
+import CryptoJS from "crypto-js";
+
+dotenv.config();
+
+//encrypt password
+export const encrypt = (text) => {
+  return CryptoJS.AES.encrypt(text, process.env.CRYPTO_SECRET).toString();
+};
+
+// decrypt password
+export const decrypt = (cipherText) => {
+  const bytes = CryptoJS.AES.decrypt(cipherText, process.env.CRYPTO_SECRET);
+  return bytes.toString(CryptoJS.enc.Utf8);
+};
 
 export const createPassword = async (req, res, next) => {
   const { siteName, siteUrl, username, password, notes, category, tags } =
@@ -66,14 +80,14 @@ export const createPassword = async (req, res, next) => {
   if (!category || !acceptedCategory.includes(category))
     return next(errorHandler(400, "Invalid Password Category"));
 
-  // Hash Password
-  const hashedPassword = await bcrypt.hash(password, 10);
+  // encrypt Password
+  const encryptedPassword = encrypt(password);
 
   // Create passwordData object & Assign values to passwordData
   const passwordData = {
     siteName,
     siteUrl,
-    password: hashedPassword,
+    password: encryptedPassword,
   };
 
   if (username) passwordData.username = username;
@@ -117,11 +131,17 @@ export const getPasswords = async (req, res, next) => {
   try {
     const passwords = await Password.find({ userId: id });
 
+    const decryptedPasswords = passwords.map((entry) => ({
+      ...entry._doc,
+      password: decrypt(entry.password),
+    }));
+
     res.status(200).json({
       success: true,
       message: "Password Fetched Successfully",
-      passwords,
+      passwords: decryptedPasswords,
     });
+    
   } catch (error) {
     next(error);
   }
@@ -146,6 +166,7 @@ export const getPasswordById = async (req, res, next) => {
       return next(errorHandler(404, "Password not found for this user"));
     }
 
+    password.password = decrypt(password.password, process.env.CRYPTO_SECRET);
     res.status(200).json({
       success: true,
       message: "Password Details fetched successfully",
@@ -228,9 +249,9 @@ export const editPassword = async (req, res, next) => {
     tags,
   };
 
-  // Only hash the password if it's being updated
+  // Only Encrypt the password if it's being updated
   if (password) {
-    passwordData.password = await bcrypt.hash(password, 10);
+    passwordData.password = encrypt(password);
   }
 
   try {
@@ -309,4 +330,3 @@ export const deletePasswordById = async (req, res, next) => {
     next(error);
   }
 };
-
