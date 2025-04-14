@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import Password from "../Models/passwordModel.js";
 import { errorHandler } from "../Utils/errorHandler.js";
 import validator from "validator"; // Importing validator
+import mongoose from "mongoose";
 
 export const createPassword = async (req, res, next) => {
   const { siteName, siteUrl, username, password, notes, category, tags } =
@@ -53,8 +54,17 @@ export const createPassword = async (req, res, next) => {
  */
 
   // Default Tags
-  const acceptedCategory =  ['social', 'banking', 'work', 'entertainment', 'shopping', 'others'];
-  if (!category || !acceptedCategory.includes(category)) return next(errorHandler(400, "Invalid Password Category"))
+  const acceptedCategory = [
+    "personal",
+    "social",
+    "banking",
+    "work",
+    "entertainment",
+    "shopping",
+    "others",
+  ];
+  if (!category || !acceptedCategory.includes(category))
+    return next(errorHandler(400, "Invalid Password Category"));
 
   // Hash Password
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -148,7 +158,8 @@ export const getPasswordById = async (req, res, next) => {
 
 // Edit Password datas
 export const editPassword = async (req, res, next) => {
-  const { siteName, siteUrl, username, password, notes, category, tags } = req.body;
+  const { siteName, siteUrl, username, password, notes, category, tags } =
+    req.body;
   const { passwordId } = req.params;
   const { id } = req.user;
 
@@ -195,9 +206,18 @@ export const editPassword = async (req, res, next) => {
   }
 
   // Default Tags
-  const acceptedCategory =  ['social', 'banking', 'work', 'entertainment', 'shopping', 'others'];
-  if (!category || !acceptedCategory.includes(category)) return next(errorHandler(400, "Invalid Password Category"))
-    
+  const acceptedCategory = [
+    "personal",
+    "social",
+    "banking",
+    "work",
+    "entertainment",
+    "shopping",
+    "others",
+  ];
+  if (!category || !acceptedCategory.includes(category))
+    return next(errorHandler(400, "Invalid Password Category"));
+
   // Initialize the passwordData object with updated values
   const passwordData = {
     siteName,
@@ -227,7 +247,8 @@ export const editPassword = async (req, res, next) => {
     // Update the password document with new values
     passwordDetails.siteName = passwordData.siteName;
     passwordDetails.siteUrl = passwordData.siteUrl;
-    passwordDetails.password = passwordData.password || passwordDetails.password; // Only update password if provided
+    passwordDetails.password =
+      passwordData.password || passwordDetails.password; // Only update password if provided
 
     if (passwordData.username) {
       passwordDetails.username = passwordData.username;
@@ -276,11 +297,16 @@ export const deletePasswordById = async (req, res, next) => {
     });
 
     if (!password) {
-      return next(errorHandler(404, "Password not found or does not belong to this user"));
+      return next(
+        errorHandler(404, "Password not found or does not belong to this user")
+      );
     }
 
-    res.status(200).json({ success: true, message: "Password deleted successfully" });
+    res
+      .status(200)
+      .json({ success: true, message: "Password deleted successfully" });
   } catch (error) {
     next(error);
   }
 };
+

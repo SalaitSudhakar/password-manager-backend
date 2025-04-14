@@ -8,6 +8,6 @@ route.post('/create', authMiddleware, createPassword);
 route.get('/get-passwords', authMiddleware, getPasswords);
 route.get('/get-password/:passwordId', authMiddleware, getPasswordById);
 route.put("/edit/:passwordId", authMiddleware, editPassword);
-route.delete("/delete/passwordId", authMiddleware, deletePasswordById);
+route.delete("/delete/:passwordId", authMiddleware, deletePasswordById);
 
 export default route;
