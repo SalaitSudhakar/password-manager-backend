@@ -166,7 +166,8 @@ export const getPasswordById = async (req, res, next) => {
       return next(errorHandler(404, "Password not found for this user"));
     }
 
-    password.password = decrypt(password.password, process.env.CRYPTO_SECRET);
+    password.password = decrypt(password.password);
+
     res.status(200).json({
       success: true,
       message: "Password Details fetched successfully",
