@@ -41,7 +41,7 @@ A secure and efficient RESTful API for managing user authentication, profile dat
 ### Installation
 
 ```bash
-git clone https://github.com/yourusername/password-manager-backend.git
+git clone https://github.com/SalaitSudhakar/password-manager-backend.git
 cd password-manager-backend
 npm install
 ```
