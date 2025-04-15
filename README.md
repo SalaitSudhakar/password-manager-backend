@@ -105,12 +105,6 @@ SENDER_EMAIL=your_email@example.com
 
 ---
 
-## License
-
-This project is licensed under the [ISC License](LICENSE).
-
----
-
 ## Author
 
 **Salait Sudhakar**  
